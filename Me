@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>S.A. Madeena — Bureau de Change</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --gold: #C9A84C;
+  --gold-light: #E8C96A;
+  --gold-dim: #7a6330;
+  --bg: #0D0D0D;
+  --bg2: #141414;
+  --bg3: #1C1C1C;
+  --bg4: #242424;
+  --border: #2a2a2a;
+  --border-gold: rgba(201,168,76,0.25);
+  --text: #F0EDE6;
+  --text-dim: #888;
+  --text-dimmer: #555;
+  --green: #4CAF7D;
+  --red: #E05C5C;
+  --blue: #5C9BE0;
+  --ngn: #C9A84C;
+  --egp: #5CB8C9;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+}
+
+/* ── HEADER ── */
+.header {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border-gold);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.02em;
+}
+.logo span { color: var(--text-dim); font-weight: 400; font-size: 13px; margin-left: 8px; font-family: 'DM Sans', sans-serif; }
+
+.header-right { display: flex; align-items: center; gap: 12px; }
+
+.user-badge {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 20px; padding: 4px 12px 4px 4px;
+  cursor: pointer; transition: border-color 0.2s;
+}
+.user-badge:hover { border-color: var(--gold-dim); }
+.user-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--gold-dim));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: var(--bg);
+}
+.user-name { font-size: 13px; font-weight: 500; }
+
+.sync-btn {
+  background: none; border: 1px solid var(--border);
+  color: var(--text-dim); border-radius: var(--radius-sm);
+  padding: 6px 12px; cursor: pointer; font-size: 12px;
+  font-family: 'DM Mono', monospace; display: flex; align-items: center; gap: 6px;
+  transition: all 0.2s;
+}
+.sync-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+.sync-btn.syncing .sync-icon { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+.sync-dot.offline { background: var(--red); }
+
+/* ── NAV ── */
+.nav {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex; gap: 0;
+}
+.nav-tab {
+  padding: 12px 20px; cursor: pointer; font-size: 13px; font-weight: 500;
+  color: var(--text-dim); border-bottom: 2px solid transparent;
+  transition: all 0.2s; display: flex; align-items: center; gap: 7px;
+  white-space: nowrap;
+}
+.nav-tab:hover { color: var(--text); }
+.nav-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+.nav-badge {
+  background: var(--red); color: #fff; border-radius: 10px;
+  padding: 1px 6px; font-size: 10px; font-weight: 600;
+}
+
+/* ── LAYOUT ── */
+.main { padding: 24px; max-width: 1200px; margin: 0 auto; }
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── STAT CARDS ── */
+.stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+
+.stat-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px;
+  position: relative; overflow: hidden;
+  transition: border-color 0.2s;
+}
+.stat-card:hover { border-color: var(--border-gold); }
+.stat-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+}
+.stat-card.ngn::before { background: var(--ngn); }
+.stat-card.egp::before { background: var(--egp); }
+.stat-card.profit::before { background: var(--green); }
+.stat-card.rate::before { background: var(--gold); }
+
+.stat-label { font-size: 11px; font-weight: 500; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+.stat-value { font-family: 'DM Mono', monospace; font-size: 24px; font-weight: 500; line-height: 1; }
+.stat-value.ngn { color: var(--ngn); }
+.stat-value.egp { color: var(--egp); }
+.stat-value.profit { color: var(--green); }
+.stat-value.rate { color: var(--gold); }
+.stat-sub { font-size: 11px; color: var(--text-dimmer); margin-top: 6px; }
+
+/* ── SECTION HEADER ── */
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+.section-title { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--text); }
+.section-title span { color: var(--gold); }
+
+/* ── BUTTONS ── */
+.btn {
+  padding: 9px 18px; border-radius: var(--radius-sm); font-size: 13px;
+  font-weight: 500; cursor: pointer; border: none; transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif; display: inline-flex; align-items: center; gap: 7px;
+}
+.btn-gold { background: var(--gold); color: var(--bg); }
+.btn-gold:hover { background: var(--gold-light); }
+.btn-outline { background: none; border: 1px solid var(--border); color: var(--text-dim); }
+.btn-outline:hover { border-color: var(--gold-dim); color: var(--text); }
+.btn-ghost { background: none; border: none; color: var(--text-dim); padding: 6px 10px; }
+.btn-ghost:hover { color: var(--gold); }
+.btn-red { background: rgba(224,92,92,0.15); border: 1px solid rgba(224,92,92,0.3); color: var(--red); }
+.btn-red:hover { background: rgba(224,92,92,0.25); }
+.btn-green { background: rgba(76,175,125,0.15); border: 1px solid rgba(76,175,125,0.3); color: var(--green); }
+.btn-green:hover { background: rgba(76,175,125,0.25); }
+.btn-sm { padding: 5px 11px; font-size: 12px; }
+
+/* ── TABLE ── */
+.table-wrap {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+}
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  padding: 12px 16px; text-align: left; font-size: 11px;
+  font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--text-dim); border-bottom: 1px solid var(--border);
+  background: var(--bg3); white-space: nowrap;
+}
+tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--bg3); }
+tbody td { padding: 12px 16px; font-size: 13px; }
+
+.dir-badge {
+  padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+  font-family: 'DM Mono', monospace; letter-spacing: 0.04em;
+}
+.dir-buy { background: rgba(76,175,125,0.15); color: var(--green); }
+.dir-sell { background: rgba(224,92,92,0.15); color: var(--red); }
+
+.debt-badge {
+  padding: 2px 8px; border-radius: 20px; font-size: 11px;
+  background: rgba(224,92,92,0.12); color: var(--red);
+}
+.paid-badge {
+  padding: 2px 8px; border-radius: 20px; font-size: 11px;
+  background: rgba(76,175,125,0.12); color: var(--green);
+}
+
+.mono { font-family: 'DM Mono', monospace; }
+.text-dim { color: var(--text-dim); }
+.text-green { color: var(--green); }
+.text-red { color: var(--red); }
+.text-gold { color: var(--gold); }
+.text-egp { color: var(--egp); }
+
+/* ── MODAL ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75); z-index: 200;
+  align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--bg2); border: 1px solid var(--border-gold);
+  border-radius: var(--radius); padding: 28px; width: 100%; max-width: 520px;
+  max-height: 90vh; overflow-y: auto;
+  animation: modalIn 0.2s ease;
+}
+@keyframes modalIn { from { opacity:0; transform: translateY(16px); } }
+.modal-title {
+  font-family: 'Playfair Display', serif; font-size: 20px;
+  color: var(--gold); margin-bottom: 24px;
+}
+
+/* ── FORM ── */
+.form-grid { display: grid; gap: 16px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 12px; font-weight: 500; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
+.field input, .field select, .field textarea {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px 12px;
+  color: var(--text); font-size: 14px; font-family: 'DM Sans', sans-serif;
+  transition: border-color 0.2s; outline: none;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: var(--gold-dim);
+}
+.field select option { background: var(--bg3); }
+.field textarea { resize: vertical; min-height: 70px; }
+.field input.mono, .field input[type="number"] { font-family: 'DM Mono', monospace; }
+
+.calc-box {
+  background: var(--bg3); border: 1px solid var(--border-gold);
+  border-radius: var(--radius-sm); padding: 14px; margin-top: 4px;
+}
+.calc-row { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; }
+.calc-label { font-size: 12px; color: var(--text-dim); }
+.calc-value { font-family: 'DM Mono', monospace; font-size: 14px; font-weight: 500; }
+.calc-divider { border: none; border-top: 1px solid var(--border); margin: 8px 0; }
+.calc-profit { font-size: 15px; color: var(--green); }
+
+.modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+
+/* ── RATE PANEL ── */
+.rate-panel {
+  background: var(--bg2); border: 1px solid var(--border-gold);
+  border-radius: var(--radius); padding: 20px; margin-bottom: 24px;
+}
+.rate-panel-inner { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.rate-field { display: flex; align-items: center; gap: 10px; }
+.rate-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); }
+.rate-input {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 8px 12px; width: 110px;
+  color: var(--gold); font-family: 'DM Mono', monospace; font-size: 15px;
+  outline: none; transition: border-color 0.2s;
+}
+.rate-input:focus { border-color: var(--gold-dim); }
+
+/* ── EMPTY STATE ── */
+.empty { text-align: center; padding: 48px 24px; color: var(--text-dim); }
+.empty-icon { font-size: 36px; margin-bottom: 12px; opacity: 0.4; }
+.empty p { font-size: 14px; }
+
+/* ── FILTER BAR ── */
+.filter-bar {
+  display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;
+  align-items: center;
+}
+.filter-bar input, .filter-bar select {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 8px 12px;
+  color: var(--text); font-size: 13px; outline: none;
+  transition: border-color 0.2s; font-family: 'DM Sans', sans-serif;
+}
+.filter-bar input:focus, .filter-bar select:focus { border-color: var(--gold-dim); }
+.filter-bar input { flex: 1; min-width: 160px; }
+
+/* ── CUSTOMER CARD ── */
+.cust-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.cust-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px;
+  transition: border-color 0.2s; cursor: pointer;
+}
+.cust-card:hover { border-color: var(--border-gold); }
+.cust-card.has-debt { border-color: rgba(224,92,92,0.3); }
+.cust-name { font-family: 'Playfair Display', serif; font-size: 16px; margin-bottom: 4px; }
+.cust-phone { font-size: 12px; color: var(--text-dim); margin-bottom: 14px; }
+.cust-debts { display: flex; gap: 10px; flex-wrap: wrap; }
+.cust-debt-item { font-size: 12px; font-family: 'DM Mono', monospace; }
+.cust-debt-item.ngn { color: var(--ngn); }
+.cust-debt-item.egp { color: var(--egp); }
+.cust-actions { margin-top: 14px; display: flex; gap: 8px; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--bg3); border: 1px solid var(--border-gold);
+  border-radius: var(--radius-sm); padding: 12px 18px;
+  font-size: 13px; z-index: 300; opacity: 0;
+  transform: translateY(10px); transition: all 0.3s;
+  max-width: 300px;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.success { border-color: rgba(76,175,125,0.4); color: var(--green); }
+.toast.error { border-color: rgba(224,92,92,0.4); color: var(--red); }
+
+/* ── LOGIN OVERLAY ── */
+.login-overlay {
+  position: fixed; inset: 0; background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 500; flex-direction: column; gap: 24px;
+}
+.login-box {
+  background: var(--bg2); border: 1px solid var(--border-gold);
+  border-radius: var(--radius); padding: 36px; width: 320px; text-align: center;
+}
+.login-logo {
+  font-family: 'Playfair Display', serif; font-size: 22px;
+  color: var(--gold); margin-bottom: 6px;
+}
+.login-sub { font-size: 12px; color: var(--text-dim); margin-bottom: 28px; }
+.login-btns { display: flex; flex-direction: column; gap: 10px; }
+.login-btn {
+  padding: 12px; border-radius: var(--radius-sm); font-size: 14px;
+  font-weight: 600; cursor: pointer; border: 1px solid var(--border);
+  background: var(--bg3); color: var(--text); transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+.login-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+
+/* ── SCRIPT URL SETUP ── */
+.setup-notice {
+  background: rgba(201,168,76,0.08); border: 1px solid var(--border-gold);
+  border-radius: var(--radius); padding: 16px 20px; margin-bottom: 20px;
+  font-size: 13px; color: var(--text-dim);
+}
+.setup-notice strong { color: var(--gold); }
+.setup-notice input {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 8px 12px; width: 100%;
+  color: var(--text); font-size: 13px; margin-top: 10px; outline: none;
+  font-family: 'DM Mono', monospace;
+  transition: border-color 0.2s;
+}
+.setup-notice input:focus { border-color: var(--gold-dim); }
+
+@media (max-width: 600px) {
+  .main { padding: 16px; }
+  .form-row { grid-template-columns: 1fr; }
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .nav-tab { padding: 12px 14px; font-size: 12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <div class="login-logo">S.A. Madeena</div>
+    <div class="login-sub">Bureau de Change</div>
+    <div class="login-btns">
+      <button class="login-btn" onclick="login('Adam')">👤 Login as Adam</button>
+      <button class="login-btn" onclick="login('Madeena')">👤 Login as Madeena</button>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">S.A. Madeena <span>Bureau de Change</span></div>
+  <div class="header-right">
+    <div id="syncStatus" class="sync-dot"></div>
+    <button class="sync-btn" onclick="syncData()" id="syncBtn">
+      <span class="sync-icon">⟳</span> Sync
+    </button>
+    <div class="user-badge" onclick="logout()">
+      <div class="user-avatar" id="userAvatar">A</div>
+      <span class="user-name" id="userName">Adam</span>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-tab active" onclick="showPage('dashboard')">📊 Dashboard</div>
+  <div class="nav-tab" onclick="showPage('transactions')">💱 Transactions</div>
+  <div class="nav-tab" onclick="showPage('customers')">👥 Customers <span class="nav-badge" id="debtBadge" style="display:none">!</span></div>
+  <div class="nav-tab" onclick="showPage('settings')">⚙ Settings</div>
+</div>
+
+<div class="main">
+
+<!-- SETUP NOTICE -->
+<div class="setup-notice" id="setupNotice">
+  <strong>⚙ First-time setup:</strong> Paste your Google Apps Script Web App URL below, then click Sync.
+  <input type="text" id="scriptUrlInput" placeholder="https://script.google.com/macros/s/.../exec" oninput="saveScriptUrl(this.value)"/>
+</div>
+
+<!-- ── DASHBOARD ── -->
+<div class="page active" id="page-dashboard">
+  <div class="stats-row">
+    <div class="stat-card ngn">
+      <div class="stat-label">₦ Naira Balance</div>
+      <div class="stat-value ngn mono" id="statNGN">₦0</div>
+      <div class="stat-sub">Cash on hand</div>
+    </div>
+    <div class="stat-card egp">
+      <div class="stat-label">£ EGP Balance</div>
+      <div class="stat-value egp mono" id="statEGP">£0</div>
+      <div class="stat-sub">Cash on hand</div>
+    </div>
+    <div class="stat-card profit">
+      <div class="stat-label">Today's Profit</div>
+      <div class="stat-value profit mono" id="statProfit">₦0</div>
+      <div class="stat-sub" id="statProfitSub">0 transactions</div>
+    </div>
+    <div class="stat-card rate">
+      <div class="stat-label">Current Rate</div>
+      <div class="stat-value rate mono" id="statRate">—</div>
+      <div class="stat-sub">Buy / Sell (₦ per £)</div>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">Recent <span>Transactions</span></div>
+    <button class="btn btn-gold" onclick="openNewTxModal()">+ New Transaction</button>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table id="dashTxTable">
+        <thead><tr>
+          <th>Time</th><th>Customer</th><th>Direction</th>
+          <th>NGN</th><th>EGP</th><th>Rate</th><th>Profit</th><th>Status</th>
+        </tr></thead>
+        <tbody id="dashTxBody"><tr><td colspan="8"><div class="empty"><div class="empty-icon">💱</div><p>No transactions yet</p></div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── TRANSACTIONS ── -->
+<div class="page" id="page-transactions">
+  <div class="filter-bar">
+    <input type="text" placeholder="Search customer, notes…" id="txSearch" oninput="renderTransactions()"/>
+    <select id="txDirFilter" onchange="renderTransactions()">
+      <option value="">All directions</option>
+      <option value="BUY">Buy (We buy EGP)</option>
+      <option value="SELL">Sell (We sell EGP)</option>
+    </select>
+    <select id="txDebtFilter" onchange="renderTransactions()">
+      <option value="">All</option>
+      <option value="debt">Has Debt</option>
+      <option value="paid">Fully Paid</option>
+    </select>
+    <button class="btn btn-gold" onclick="openNewTxModal()">+ New Transaction</button>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table>
+        <thead><tr>
+          <th>Date / Time</th><th>Customer</th><th>Direction</th>
+          <th>₦ NGN</th><th>£ EGP</th><th>Rate</th><th>Profit</th>
+          <th>Paid</th><th>Debt</th><th>By</th><th>Notes</th><th></th>
+        </tr></thead>
+        <tbody id="txBody"><tr><td colspan="12"><div class="empty"><div class="empty-icon">💱</div><p>No transactions yet. Add one!</p></div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── CUSTOMERS ── -->
+<div class="page" id="page-customers">
+  <div class="section-header">
+    <div class="section-title">Customer <span>Ledger</span></div>
+    <button class="btn btn-gold" onclick="openNewCustModal()">+ Add Customer</button>
+  </div>
+  <div class="cust-grid" id="custGrid">
+    <div class="empty"><div class="empty-icon">👥</div><p>No customers yet</p></div>
+  </div>
+</div>
+
+<!-- ── SETTINGS ── -->
+<div class="page" id="page-settings">
+  <div class="section-title" style="margin-bottom:20px">Exchange <span style="color:var(--gold)">Rates</span></div>
+
+  <div class="rate-panel">
+    <div class="rate-panel-inner">
+      <div class="rate-field">
+        <span class="rate-label">Buy Rate (₦/£)</span>
+        <input type="number" class="rate-input" id="buyRateInput" placeholder="50.00" step="0.01"/>
+      </div>
+      <div class="rate-field">
+        <span class="rate-label">Sell Rate (₦/£)</span>
+        <input type="number" class="rate-input" id="sellRateInput" placeholder="55.00" step="0.01"/>
+      </div>
+      <button class="btn btn-gold" onclick="saveRate()">Save Rates</button>
+    </div>
+    <div style="margin-top:12px; font-size:12px; color:var(--text-dim)">
+      These become the default for new transactions. You can still override per-deal.
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-bottom:16px; margin-top:28px">Cash <span style="color:var(--gold)">Balances</span></div>
+  <div class="rate-panel">
+    <div class="rate-panel-inner">
+      <div class="rate-field">
+        <span class="rate-label">₦ NGN Balance</span>
+        <input type="number" class="rate-input" id="ngnBalInput" placeholder="0" style="color:var(--ngn)"/>
+      </div>
+      <div class="rate-field">
+        <span class="rate-label">£ EGP Balance</span>
+        <input type="number" class="rate-input" id="egpBalInput" placeholder="0" style="color:var(--egp)"/>
+      </div>
+      <button class="btn btn-gold" onclick="saveBalances()">Update Balances</button>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-bottom:16px; margin-top:28px">Rate <span style="color:var(--gold)">History</span></div>
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Date</th><th>Buy Rate</th><th>Sell Rate</th><th>Set By</th><th>Notes</th></tr></thead>
+        <tbody id="rateHistBody"><tr><td colspan="5"><div class="empty"><p>No rate history</p></div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- ── NEW TRANSACTION MODAL ── -->
+<div class="modal-overlay" id="txModal">
+  <div class="modal">
+    <div class="modal-title" id="txModalTitle">New Transaction</div>
+    <div class="form-grid">
+      <input type="hidden" id="txEditId"/>
+      <div class="form-row">
+        <div class="field">
+          <label>Customer Name</label>
+          <input type="text" id="txCustomer" placeholder="Name" list="custDatalist" oninput="autoFillCustomer()"/>
+          <datalist id="custDatalist"></datalist>
+        </div>
+        <div class="field">
+          <label>Direction</label>
+          <select id="txDirection" onchange="calcTx()">
+            <option value="BUY">BUY — We buy EGP, pay ₦</option>
+            <option value="SELL">SELL — We sell EGP, receive ₦</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>Amount (EGP £)</label>
+          <input type="number" id="txAmtEGP" placeholder="0.00" oninput="calcTx()" class="mono" step="0.01"/>
+        </div>
+        <div class="field">
+          <label>Rate Override (₦/£) — leave blank for default</label>
+          <input type="number" id="txRateOverride" placeholder="Use default" oninput="calcTx()" class="mono" step="0.01"/>
+        </div>
+      </div>
+
+      <!-- Calc preview -->
+      <div class="calc-box" id="calcBox">
+        <div class="calc-row"><span class="calc-label">EGP Amount</span><span class="calc-value text-egp" id="calcEGP">£0</span></div>
+        <div class="calc-row"><span class="calc-label">Rate Used</span><span class="calc-value text-gold" id="calcRate">—</span></div>
+        <div class="calc-row"><span class="calc-label">NGN Amount</span><span class="calc-value" id="calcNGN">₦0</span></div>
+        <hr class="calc-divider"/>
+        <div class="calc-row"><span class="calc-label">Profit</span><span class="calc-value calc-profit" id="calcProfit">₦0</span></div>
+      </div>
+
+      <div class="form-row">
+        <div class="field">
+          <label>Amount Paid Now (₦)</label>
+          <input type="number" id="txPaid" placeholder="0" oninput="calcDebt()" class="mono" step="0.01"/>
+        </div>
+        <div class="field">
+          <label>Debt / Balance</label>
+          <input type="number" id="txDebt" placeholder="0" readonly class="mono" style="color:var(--red)"/>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Notes / Remarks</label>
+        <textarea id="txNotes" placeholder="Optional notes…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeTxModal()">Cancel</button>
+      <button class="btn btn-gold" onclick="saveTx()">Save Transaction</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── NEW CUSTOMER MODAL ── -->
+<div class="modal-overlay" id="custModal">
+  <div class="modal">
+    <div class="modal-title">Add Customer</div>
+    <div class="form-grid">
+      <input type="hidden" id="custEditId"/>
+      <div class="field"><label>Full Name</label><input type="text" id="custName" placeholder="Customer name"/></div>
+      <div class="field"><label>Phone (optional)</label><input type="text" id="custPhone" placeholder="+234…"/></div>
+      <div class="field"><label>Notes</label><textarea id="custNotes" placeholder="Any notes…"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeCustModal()">Cancel</button>
+      <button class="btn btn-gold" onclick="saveCust()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SETTLE DEBT MODAL ── -->
+<div class="modal-overlay" id="settleModal">
+  <div class="modal">
+    <div class="modal-title">Settle Debt</div>
+    <div class="form-grid">
+      <input type="hidden" id="settleCustomerId"/>
+      <div class="field" id="settleNGNField">
+        <label>Settle NGN Debt (₦)</label>
+        <input type="number" id="settleNGN" placeholder="0" class="mono"/>
+      </div>
+      <div class="field" id="settleEGPField">
+        <label>Settle EGP Debt (£)</label>
+        <input type="number" id="settleEGP" placeholder="0" class="mono"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeSettleModal()">Cancel</button>
+      <button class="btn btn-green" onclick="confirmSettle()">Confirm Settlement</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+//  CONFIG & STATE
+// ════════════════════════════════════════════════════════════
+let SCRIPT_URL = localStorage.getItem('bdcScriptUrl') || '';
+let currentUser = '';
+let state = { transactions: [], customers: [], rates: [], balances: [] };
+let syncInterval = null;
+
+// Show/hide setup notice
+function updateSetupNotice() {
+  const notice = document.getElementById('setupNotice');
+  const input = document.getElementById('scriptUrlInput');
+  if (SCRIPT_URL) {
+    input.value = SCRIPT_URL;
+    notice.style.display = 'none';
+  } else {
+    notice.style.display = 'block';
+  }
+}
+
+function saveScriptUrl(val) {
+  SCRIPT_URL = val.trim();
+  localStorage.setItem('bdcScriptUrl', SCRIPT_URL);
+}
+
+// ════════════════════════════════════════════════════════════
+//  AUTH
+// ════════════════════════════════════════════════════════════
+function login(name) {
+  currentUser = name;
+  localStorage.setItem('bdcUser', name);
+  document.getElementById('loginOverlay').style.display = 'none';
+  document.getElementById('userName').textContent = name;
+  document.getElementById('userAvatar').textContent = name[0];
+  updateSetupNotice();
+  syncData();
+  syncInterval = setInterval(syncData, 30000);
+}
+
+function logout() {
+  clearInterval(syncInterval);
+  localStorage.removeItem('bdcUser');
+  document.getElementById('loginOverlay').style.display = 'flex';
+}
+
+// Auto-login if stored
+(function() {
+  const u = localStorage.getItem('bdcUser');
+  if (u) {
+    currentUser = u;
+    document.getElementById('loginOverlay').style.display = 'none';
+    document.getElementById('userName').textContent = u;
+    document.getElementById('userAvatar').textContent = u[0];
+    updateSetupNotice();
+    syncData();
+    syncInterval = setInterval(syncData, 30000);
+  }
+})();
+
+// ════════════════════════════════════════════════════════════
+//  API CALLS
+// ════════════════════════════════════════════════════════════
+async function api(params) {
+  if (!SCRIPT_URL) { showToast('No script URL set. Go to Settings.', 'error'); return null; }
+  const url = SCRIPT_URL + '?' + new URLSearchParams(params);
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.error) { showToast(data.error, 'error'); return null; }
+    return data;
+  } catch(e) {
+    showToast('Network error: ' + e.message, 'error');
+    setOffline(true);
+    return null;
+  }
+}
+
+function setOffline(v) {
+  const dot = document.getElementById('syncStatus');
+  dot.className = 'sync-dot' + (v ? ' offline' : '');
+}
+
+async function syncData() {
+  const btn = document.getElementById('syncBtn');
+  btn.classList.add('syncing');
+  const data = await api({ action: 'getAll' });
+  btn.classList.remove('syncing');
+  if (!data) return;
+  state = data;
+  setOffline(false);
+  renderAll();
+  showToast('Synced ✓', 'success');
+}
+
+// ════════════════════════════════════════════════════════════
+//  NAV
+// ════════════════════════════════════════════════════════════
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (name === 'settings') renderSettings();
+}
+
+// ════════════════════════════════════════════════════════════
+//  RENDER ALL
+// ════════════════════════════════════════════════════════════
+function renderAll() {
+  renderDashboard();
+  renderTransactions();
+  renderCustomers();
+  renderSettings();
+  updateDebtBadge();
+  updateCustDatalist();
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-GB', {day:'2-digit',month:'short'}) + ' ' +
+         d.toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'});
+}
+
+function fmtN(n) { return '₦' + Number(n||0).toLocaleString('en-NG', {minimumFractionDigits:0, maximumFractionDigits:2}); }
+function fmtE(n) { return '£' + Number(n||0).toLocaleString('en', {minimumFractionDigits:0, maximumFractionDigits:2}); }
+
+// ── DASHBOARD ──
+function renderDashboard() {
+  const txs = state.transactions || [];
+  const bals = state.balances || [];
+  const rates = state.rates || [];
+
+  const ngn = bals.find(b => b.Currency === 'NGN');
+  const egp = bals.find(b => b.Currency === 'EGP');
+  document.getElementById('statNGN').textContent = fmtN(ngn?.Balance || 0);
+  document.getElementById('statEGP').textContent = fmtE(egp?.Balance || 0);
+
+  const today = new Date().toDateString();
+  const todayTxs = txs.filter(t => new Date(t.DateTime).toDateString() === today);
+  const todayProfit = todayTxs.reduce((s, t) => s + Number(t.Profit || 0), 0);
+  document.getElementById('statProfit').textContent = fmtN(todayProfit);
+  document.getElementById('statProfitSub').textContent = todayTxs.length + ' transaction' + (todayTxs.length !== 1 ? 's' : '') + ' today';
+
+  const lastRate = rates[rates.length - 1];
+  document.getElementById('statRate').textContent = lastRate ? `${lastRate.BuyRate} / ${lastRate.SellRate}` : '—';
+
+  const recent = [...txs].sort((a, b) => new Date(b.DateTime) - new Date(a.DateTime)).slice(0, 8);
+  const tbody = document.getElementById('dashTxBody');
+  if (!recent.length) {
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty"><div class="empty-icon">💱</div><p>No transactions yet</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = recent.map(t => `
+    <tr>
+      <td class="mono text-dim" style="font-size:12px">${fmtDate(t.DateTime)}</td>
+      <td>${t.Customer || '—'}</td>
+      <td><span class="dir-badge dir-${t.Direction?.toLowerCase()}">${t.Direction}</span></td>
+      <td class="mono">${fmtN(t.AmountNGN)}</td>
+      <td class="mono text-egp">${fmtE(t.AmountEGP)}</td>
+      <td class="mono text-gold">${t.Rate}</td>
+      <td class="mono text-green">${fmtN(t.Profit)}</td>
+      <td>${Number(t.Debt||0) > 0 ? `<span class="debt-badge">${fmtN(t.Debt)} debt</span>` : '<span class="paid-badge">Paid</span>'}</td>
+    </tr>`).join('');
+}
+
+// ── TRANSACTIONS ──
+function renderTransactions() {
+  const search = document.getElementById('txSearch').value.toLowerCase();
+  const dir = document.getElementById('txDirFilter').value;
+  const debtF = document.getElementById('txDebtFilter').value;
+
+  let txs = [...(state.transactions || [])].sort((a, b) => new Date(b.DateTime) - new Date(a.DateTime));
+  if (search) txs = txs.filter(t => (t.Customer||'').toLowerCase().includes(search) || (t.Notes||'').toLowerCase().includes(search));
+  if (dir) txs = txs.filter(t => t.Direction === dir);
+  if (debtF === 'debt') txs = txs.filter(t => Number(t.Debt||0) > 0);
+  if (debtF === 'paid') txs = txs.filter(t => Number(t.Debt||0) === 0);
+
+  const tbody = document.getElementById('txBody');
+  if (!txs.length) {
+    tbody.innerHTML = '<tr><td colspan="12"><div class="empty"><div class="empty-icon">💱</div><p>No transactions match</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = txs.map(t => `
+    <tr>
+      <td class="mono text-dim" style="font-size:12px">${fmtDate(t.DateTime)}</td>
+      <td>${t.Customer||'—'}</td>
+      <td><span class="dir-badge dir-${t.Direction?.toLowerCase()}">${t.Direction}</span></td>
+      <td class="mono">${fmtN(t.AmountNGN)}</td>
+      <td class="mono text-egp">${fmtE(t.AmountEGP)}</td>
+      <td class="mono text-gold">${t.Rate}</td>
+      <td class="mono text-green">${fmtN(t.Profit)}</td>
+      <td class="mono">${fmtN(t.Paid)}</td>
+      <td>${Number(t.Debt||0)>0 ? `<span class="debt-badge">${fmtN(t.Debt)}</span>` : '<span class="paid-badge">✓</span>'}</td>
+      <td class="text-dim" style="font-size:12px">${t.RecordedBy||'—'}</td>
+      <td class="text-dim" style="font-size:12px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${t.Notes||''}">${t.Notes||'—'}</td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="editTx(${JSON.stringify(t).replace(/"/g,'&quot;')})">✏</button>
+        <button class="btn btn-ghost btn-sm text-red" onclick="deleteTx('${t.ID}')">🗑</button>
+      </td>
+    </tr>`).join('');
+}
+
+// ── CUSTOMERS ──
+function renderCustomers() {
+  const custs = state.customers || [];
+  const grid = document.getElementById('custGrid');
+  if (!custs.length) {
+    grid.innerHTML = '<div class="empty"><div class="empty-icon">👥</div><p>No customers yet</p></div>';
+    return;
+  }
+  grid.innerHTML = custs.map(c => {
+    const hasDebt = Number(c.TotalDebtNGN||0) > 0 || Number(c.TotalDebtEGP||0) > 0;
+    return `<div class="cust-card ${hasDebt ? 'has-debt' : ''}">
+      <div class="cust-name">${c.Name}</div>
+      <div class="cust-phone">${c.Phone || 'No phone'}</div>
+      <div class="cust-debts">
+        ${Number(c.TotalDebtNGN||0) > 0 ? `<span class="cust-debt-item ngn">₦ owes ${fmtN(c.TotalDebtNGN)}</span>` : ''}
+        ${Number(c.TotalDebtEGP||0) > 0 ? `<span class="cust-debt-item egp">£ owes ${fmtE(c.TotalDebtEGP)}</span>` : ''}
+        ${!hasDebt ? '<span style="font-size:12px;color:var(--green)">✓ No debt</span>' : ''}
+      </div>
+      <div class="cust-actions">
+        ${hasDebt ? `<button class="btn btn-green btn-sm" onclick="openSettleModal('${c.ID}')">Settle Debt</button>` : ''}
+        <button class="btn btn-outline btn-sm" onclick="editCust(${JSON.stringify(c).replace(/"/g,'&quot;')})">Edit</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateDebtBadge() {
+  const custs = state.customers || [];
+  const n = custs.filter(c => Number(c.TotalDebtNGN||0) > 0 || Number(c.TotalDebtEGP||0) > 0).length;
+  const badge = document.getElementById('debtBadge');
+  badge.style.display = n > 0 ? '' : 'none';
+}
+
+function updateCustDatalist() {
+  const dl = document.getElementById('custDatalist');
+  dl.innerHTML = (state.customers||[]).map(c => `<option value="${c.Name}"/>`).join('');
+}
+
+// ── SETTINGS ──
+function renderSettings() {
+  const rates = state.rates || [];
+  const bals = state.balances || [];
+  const lastRate = rates[rates.length - 1];
+  if (lastRate) {
+    document.getElementById('buyRateInput').value = lastRate.BuyRate;
+    document.getElementById('sellRateInput').value = lastRate.SellRate;
+  }
+  const ngn = bals.find(b => b.Currency === 'NGN');
+  const egp = bals.find(b => b.Currency === 'EGP');
+  if (ngn) document.getElementById('ngnBalInput').value = ngn.Balance;
+  if (egp) document.getElementById('egpBalInput').value = egp.Balance;
+
+  const tbody = document.getElementById('rateHistBody');
+  const sorted = [...rates].reverse().slice(0, 20);
+  if (!sorted.length) { tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><p>No rate history</p></div></td></tr>'; return; }
+  tbody.innerHTML = sorted.map(r => `<tr>
+    <td class="mono text-dim" style="font-size:12px">${fmtDate(r.Date)}</td>
+    <td class="mono text-ngn">${r.BuyRate}</td>
+    <td class="mono text-green">${r.SellRate}</td>
+    <td class="text-dim">${r.SetBy||'—'}</td>
+    <td class="text-dim">${r.Notes||'—'}</td>
+  </tr>`).join('');
+}
+
+// ════════════════════════════════════════════════════════════
+//  TRANSACTION MODAL
+// ════════════════════════════════════════════════════════════
+function openNewTxModal() {
+  document.getElementById('txEditId').value = '';
+  document.getElementById('txModalTitle').textContent = 'New Transaction';
+  document.getElementById('txCustomer').value = '';
+  document.getElementById('txDirection').value = 'BUY';
+  document.getElementById('txAmtEGP').value = '';
+  document.getElementById('txRateOverride').value = '';
+  document.getElementById('txPaid').value = '';
+  document.getElementById('txDebt').value = '';
+  document.getElementById('txNotes').value = '';
+  calcTx();
+  document.getElementById('txModal').classList.add('open');
+}
+
+function editTx(t) {
+  document.getElementById('txEditId').value = t.ID;
+  document.getElementById('txModalTitle').textContent = 'Edit Transaction';
+  document.getElementById('txCustomer').value = t.Customer || '';
+  document.getElementById('txDirection').value = t.Direction || 'BUY';
+  document.getElementById('txAmtEGP').value = t.AmountEGP || '';
+  document.getElementById('txRateOverride').value = t.Rate || '';
+  document.getElementById('txPaid').value = t.Paid || '';
+  document.getElementById('txDebt').value = t.Debt || '';
+  document.getElementById('txNotes').value = t.Notes || '';
+  calcTx();
+  document.getElementById('txModal').classList.add('open');
+}
+
+function closeTxModal() { document.getElementById('txModal').classList.remove('open'); }
+
+function getCurrentRate() {
+  const rates = state.rates || [];
+  const last = rates[rates.length - 1];
+  return last ? { buy: Number(last.BuyRate), sell: Number(last.SellRate) } : { buy: 50, sell: 55 };
+}
+
+function calcTx() {
+  const egp = parseFloat(document.getElementById('txAmtEGP').value) || 0;
+  const dir = document.getElementById('txDirection').value;
+  const override = parseFloat(document.getElementById('txRateOverride').value) || 0;
+  const rates = getCurrentRate();
+
+  let rate, buyRate = rates.buy, sellRate = rates.sell;
+  if (override) { rate = override; }
+  else { rate = dir === 'BUY' ? rates.buy : rates.sell; }
+
+  const ngn = egp * rate;
+  // Profit: if BUY (we pay buy rate, notional sell rate), if SELL (we receive sell rate, notional buy rate)
+  const spread = sellRate - buyRate;
+  const profit = egp * Math.abs(spread) / 2 * (spread > 0 ? 1 : 0);
+  // Simpler profit calc: buy at buy rate, sell at sell rate, profit = egp * (sellRate - buyRate)
+  const profitCalc = dir === 'SELL' ? egp * (sellRate - buyRate) : egp * (sellRate - buyRate);
+
+  document.getElementById('calcEGP').textContent = fmtE(egp);
+  document.getElementById('calcRate').textContent = rate ? rate + ' ₦/£' : '—';
+  document.getElementById('calcNGN').textContent = fmtN(ngn);
+  document.getElementById('calcProfit').textContent = fmtN(profitCalc > 0 ? profitCalc : 0);
+
+  // Store for save
+  document._txCalc = { ngn, egp, rate, buyRate, sellRate, profit: profitCalc > 0 ? profitCalc : 0 };
+
+  calcDebt();
+}
+
+function calcDebt() {
+  const calc = document._txCalc || {};
+  const paid = parseFloat(document.getElementById('txPaid').value) || 0;
+  const ngn = calc.ngn || 0;
+  const debt = Math.max(0, ngn - paid);
+  document.getElementById('txDebt').value = debt.toFixed(2);
+}
+
+function autoFillCustomer() {
+  // could auto-fill phone from customer list — future enhancement
+}
+
+async function saveTx() {
+  const customer = document.getElementById('txCustomer').value.trim();
+  if (!customer) { showToast('Customer name required', 'error'); return; }
+  const amtEGP = parseFloat(document.getElementById('txAmtEGP').value);
+  if (!amtEGP) { showToast('Enter EGP amount', 'error'); return; }
+
+  const calc = document._txCalc || {};
+  const editId = document.getElementById('txEditId').value;
+
+  // Find customer id
+  const cust = (state.customers||[]).find(c => c.Name.toLowerCase() === customer.toLowerCase());
+
+  const data = {
+    id: editId || undefined,
+    dateTime: new Date().toISOString(),
+    customer,
+    customerId: cust?.ID || '',
+    direction: document.getElementById('txDirection').value,
+    amountNGN: calc.ngn || 0,
+    amountEGP: amtEGP,
+    rate: calc.rate || 0,
+    buyRate: calc.buyRate || 0,
+    sellRate: calc.sellRate || 0,
+    profit: calc.profit || 0,
+    paid: parseFloat(document.getElementById('txPaid').value) || 0,
+    debt: parseFloat(document.getElementById('txDebt').value) || 0,
+    notes: document.getElementById('txNotes').value,
+    recordedBy: currentUser
+  };
+
+  let res;
+  if (editId) {
+    data.id = editId;
+    res = await api({ action: 'updateTransaction', data: JSON.stringify(data) });
+  } else {
+    res = await api({ action: 'addTransaction', data: JSON.stringify(data) });
+  }
+
+  if (res?.success) {
+    showToast(editId ? 'Transaction updated' : 'Transaction saved ✓', 'success');
+    closeTxModal();
+    await syncData();
+  }
+}
+
+async function deleteTx(id) {
+  if (!confirm('Delete this transaction?')) return;
+  const res = await api({ action: 'deleteTransaction', id });
+  if (res?.success) { showToast('Deleted', 'success'); await syncData(); }
+}
+
+// ════════════════════════════════════════════════════════════
+//  CUSTOMER MODAL
+// ════════════════════════════════════════════════════════════
+function openNewCustModal() {
+  document.getElementById('custEditId').value = '';
+  document.getElementById('custName').value = '';
+  document.getElementById('custPhone').value = '';
+  document.getElementById('custNotes').value = '';
+  document.getElementById('custModal').classList.add('open');
+}
+
+function editCust(c) {
+  document.getElementById('custEditId').value = c.ID;
+  document.getElementById('custName').value = c.Name;
+  document.getElementById('custPhone').value = c.Phone || '';
+  document.getElementById('custNotes').value = c.Notes || '';
+  document.getElementById('custModal').classList.add('open');
+}
+
+function closeCustModal() { document.getElementById('custModal').classList.remove('open'); }
+
+async function saveCust() {
+  const name = document.getElementById('custName').value.trim();
+  if (!name) { showToast('Name required', 'error'); return; }
+  const editId = document.getElementById('custEditId').value;
+  const data = {
+    id: editId || undefined,
+    name,
+    phone: document.getElementById('custPhone').value.trim(),
+    notes: document.getElementById('custNotes').value.trim()
+  };
+  const action = editId ? 'updateCustomer' : 'addCustomer';
+  if (editId) data.id = editId;
+  const res = await api({ action, data: JSON.stringify(data) });
+  if (res?.success) { showToast('Customer saved ✓', 'success'); closeCustModal(); await syncData(); }
+}
+
+// ════════════════════════════════════════════════════════════
+//  SETTLE MODAL
+// ════════════════════════════════════════════════════════════
+function openSettleModal(custId) {
+  document.getElementById('settleCustomerId').value = custId;
+  document.getElementById('settleNGN').value = '';
+  document.getElementById('settleEGP').value = '';
+  document.getElementById('settleModal').classList.add('open');
+}
+function closeSettleModal() { document.getElementById('settleModal').classList.remove('open'); }
+
+async function confirmSettle() {
+  const custId = document.getElementById('settleCustomerId').value;
+  const res = await api({ action: 'settleDebt', data: JSON.stringify({
+    customerId: custId,
+    settleNGN: parseFloat(document.getElementById('settleNGN').value) || 0,
+    settleEGP: parseFloat(document.getElementById('settleEGP').value) || 0
+  })});
+  if (res?.success) { showToast('Debt settled ✓', 'success'); closeSettleModal(); await syncData(); }
+}
+
+// ════════════════════════════════════════════════════════════
+//  SETTINGS ACTIONS
+// ════════════════════════════════════════════════════════════
+async function saveRate() {
+  const buy = parseFloat(document.getElementById('buyRateInput').value);
+  const sell = parseFloat(document.getElementById('sellRateInput').value);
+  if (!buy || !sell) { showToast('Enter both rates', 'error'); return; }
+  const res = await api({ action: 'setRate', data: JSON.stringify({ buyRate: buy, sellRate: sell, setBy: currentUser }) });
+  if (res?.success) { showToast('Rates saved ✓', 'success'); await syncData(); }
+}
+
+async function saveBalances() {
+  const ngn = parseFloat(document.getElementById('ngnBalInput').value) || 0;
+  const egp = parseFloat(document.getElementById('egpBalInput').value) || 0;
+  await api({ action: 'updateBalance', data: JSON.stringify({ currency: 'NGN', balance: ngn, updatedBy: currentUser }) });
+  await api({ action: 'updateBalance', data: JSON.stringify({ currency: 'EGP', balance: egp, updatedBy: currentUser }) });
+  showToast('Balances updated ✓', 'success');
+  await syncData();
+}
+
+// ════════════════════════════════════════════════════════════
+//  TOAST
+// ════════════════════════════════════════════════════════════
+let toastTimer;
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + (type || '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+});
+</script>
+</body>
+</html>
